@@ -7,4 +7,3 @@ data/raw/sentinel1_insar/S1AA*/
 data/raw/sentinel1_insar/*.zip
 data/raw/geology/TN_geol_poly.*
 data/raw/geology/TN_structure.*
-outputs/figures/
