@@ -9,6 +9,9 @@
 
 A GIS/ML pipeline integrating real satellite InSAR displacement data, USGS terrain analysis, state geology maps, and federal traffic counts to identify and prioritize slope instability risk along East Tennessee highways. Built toward TDOT Unstable Slope Management Program (USMP) modernization.
 
+## Link to launch the Dashboard:
+https://tdot-slope-monitoring-proposal2026.streamlit.app/
+
 ---
 
 ## Corridors Covered
