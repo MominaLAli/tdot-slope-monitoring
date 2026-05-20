@@ -1,0 +1,591 @@
+\documentclass[11pt,letterpaper]{article}
+
+% =========================================================
+% Plain Black-and-White Academic Report Template
+% =========================================================
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage[most]{tcolorbox}
+\usepackage{listings}
+\usepackage{url}
+
+% =========================================================
+% Page Style
+% =========================================================
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small TDOT Slope Movement Monitoring System}
+\fancyhead[R]{\small Momina L. Ali | UTK}
+\fancyfoot[C]{\small \thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% =========================================================
+% Academic Section Styling: black and white only
+% =========================================================
+\titleformat{\section}
+  {\Large\bfseries}
+  {\thesection}{0.8em}{}
+  [\vspace{-0.35em}\titlerule]
+\titleformat{\subsection}
+  {\large\bfseries}
+  {\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}
+  {\normalsize\bfseries}
+  {\thesubsubsection}{0.8em}{}
+
+\captionsetup{font=small,labelfont=bf,skip=6pt}
+\setstretch{1.12}
+\setlist[itemize]{leftmargin=*,topsep=3pt,itemsep=2pt}
+\setlist[enumerate]{leftmargin=*,topsep=3pt,itemsep=3pt}
+
+% =========================================================
+% Custom Columns
+% =========================================================
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+% =========================================================
+% Plain boxed notes: no color, white background, black border
+% =========================================================
+\newtcolorbox{boxednote}[1][]{
+  enhanced,breakable,
+  colback=white,
+  colframe=black,
+  boxrule=0.6pt,
+  arc=0pt,
+  left=8pt,right=8pt,top=8pt,bottom=8pt,
+  title=#1,
+  fonttitle=\bfseries,
+  coltitle=black,
+  colbacktitle=white,
+  boxed title style={colback=white,colframe=white,boxrule=0pt},
+  attach boxed title to top left={xshift=6pt,yshift=-2mm}
+}
+
+\lstset{
+  basicstyle=\small\ttfamily,
+  frame=single,
+  framerule=0.3pt,
+  breaklines=true,
+  columns=fullflexible
+}
+
+\begin{document}
+
+% =========================================================
+% Title Page
+% =========================================================
+\begin{titlepage}
+\centering
+\vspace*{1.2cm}
+
+\rule{\linewidth}{0.8pt}\\[0.8cm]
+
+{\Huge\bfseries TDOT Slope Movement\\[0.2cm] Monitoring System}\\[0.75cm]
+
+{\Large East Tennessee Highway Corridor Risk Assessment}\\[0.25cm]
+{\large Proof of Concept: I-40 and I-75 Mountain Corridors}\\[0.8cm]
+
+\rule{0.7\linewidth}{0.5pt}\\[1.2cm]
+
+{\Large\bfseries Momina L. Ali}\\[0.2cm]
+{\large University of Tennessee, Knoxville}\\[1.2cm]
+
+\begin{center}
+\begin{minipage}{0.86\linewidth}
+\textbf{Report Purpose.} This report presents a proof-of-concept AI/ML and GIS workflow for detecting, ranking, and visualizing slope movement risk along East Tennessee highway corridors using satellite InSAR, terrain, geology, and road-exposure data.
+\end{minipage}
+\end{center}
+
+\vfill
+
+\begin{tabularx}{0.92\linewidth}{L{3.4cm}Y}
+\toprule
+\textbf{Repository} & \url{https://github.com/MominaLAli/tdot-slope-monitoring} \\
+\textbf{Primary data} & Sentinel-1 InSAR from ASF HyP3; USGS 3DEP DEM; USGS Tennessee geology; FHWA HPMS traffic counts \\
+\textbf{Analysis scale} & 432 road segments across 346 km of I-40 and I-75 in East Tennessee \\
+\textbf{Project status} & Proof of concept; pending TDOT USMP ground-truth validation \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.8cm}
+\rule{\linewidth}{0.5pt}\\[0.25cm]
+{\large May 2026}
+
+\end{titlepage}
+\pagenumbering{roman}
+
+% =========================================================
+% Executive Summary
+% =========================================================
+\section*{Executive Summary}
+\addcontentsline{toc}{section}{Executive Summary}
+
+The Tennessee Department of Transportation (TDOT) manages unstable slopes across a large and geologically complex highway network. Annual manual inspection of all potential slope sites is difficult because the network is extensive, terrain conditions vary sharply, and early slope movement may not be visible during standard field review. This proof-of-concept report demonstrates a practical, data-driven monitoring system that combines satellite displacement measurements, terrain analysis, geology, traffic exposure, machine learning, and an interactive dashboard to support corridor-level inspection prioritization.
+
+The system was applied to 432 half-mile highway segments across 346 km of I-40 and I-75 in East Tennessee. The workflow uses real public data sources, including 35 Sentinel-1 InSAR pairs from January 2022 to January 2024, USGS 3DEP elevation data, USGS Tennessee geology, and FHWA HPMS traffic counts. The analysis is designed to be reproducible and expandable once TDOT Unstable Slope Management Program (USMP) ground-truth data become available.
+
+\begin{boxednote}[Main Result]
+The most important finding is Segment 149 on I-40. It shows a sustained displacement trend of \textbf{-1.785 mm/month} over two years of real Sentinel-1 InSAR data, even though the mean slope is only \textbf{5.2 degrees}. A terrain-only approach would classify this location as Low risk, while the InSAR-integrated approach correctly elevates it to High risk. This demonstrates the value of satellite monitoring for identifying movement that terrain screening alone may miss.
+\end{boxednote}
+
+Two Critical-risk segments were also identified on I-75 in the Jellico Mountain section of Campbell County. These segments are located in steep clastic sedimentary terrain and align with known regional slope concerns. Unsupervised K-Means clustering, applied without proxy labels, produced a three-cluster risk structure consistent with the supervised model, supporting the strength of the observed terrain and InSAR signals.
+
+\subsection*{Key Performance and Output Summary}
+\addcontentsline{toc}{subsection}{Key Performance and Output Summary}
+
+\begin{table}[H]
+\centering
+\caption*{Project snapshot.}
+\begin{tabularx}{\linewidth}{L{4.2cm}Y}
+\toprule
+\textbf{Item} & \textbf{Summary} \\
+\midrule
+Study area & I-40 from Cookeville to the North Carolina border and I-75 Jellico Mountain section in Campbell County \\
+Segment count & 432 road segments: 342 on I-40 and 90 on I-75 \\
+Satellite data & 35 Sentinel-1 InSAR pairs from January 2022 to January 2024 \\
+Best supervised model & Random Forest combined model with CV ROC-AUC of $0.945 \pm 0.050$ \\
+Unsupervised validation & K-Means with K=3 and silhouette score of 0.376 \\
+Critical segments & 2 segments, both on I-75 Jellico \\
+Operational product & Streamlit dashboard, GIS-ready GeoJSON, ranked segment tables, and standalone interactive map \\
+Main limitation & Risk labels are proxy-based until TDOT USMP ground-truth data are integrated \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\newpage
+\tableofcontents
+\newpage
+\pagenumbering{arabic}
+
+% =========================================================
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{Problem Context}
+
+TDOT's Unstable Slope Management Program (USMP) supports monitoring and management of slope hazards across Tennessee highways. East Tennessee presents a particularly challenging setting because the region includes Appalachian mountain corridors, steep terrain, varied geologic formations, and high-consequence roadway segments. Traditional field inspection remains essential, but it can be strengthened by remote sensing and automated prioritization tools that identify where inspection resources should be focused first.
+
+This project responds to that need by developing a proof-of-concept system for detecting slope movement and ranking highway segments by risk. The system integrates satellite InSAR displacement signals with terrain, geology, and road-exposure variables, then presents the results through an interactive dashboard intended for practical engineering review.
+
+\subsection{Project Objectives}
+
+The project has five objectives:
+
+\begin{enumerate}
+  \item Detect real ground movement along East Tennessee highway corridors using Sentinel-1 InSAR products processed through ASF HyP3.
+  \item Extract terrain susceptibility features from USGS 3DEP Digital Elevation Model data.
+  \item Integrate geology and traffic exposure into an interpretable composite risk score.
+  \item Use unsupervised clustering to identify natural risk groups without requiring labeled training data.
+  \item Provide a dashboard that allows TDOT engineers to review and prioritize high-risk segments without needing to run code.
+\end{enumerate}
+
+\subsection{Corridors Included in the Proof of Concept}
+
+\begin{table}[H]
+\centering
+\caption{Highway corridors included in the analysis.}
+\label{tab:corridors}
+\begin{tabularx}{\linewidth}{L{1.3cm}Y C{1.7cm} C{1.7cm}Y}
+\toprule
+\textbf{Road} &
+\textbf{Section} &
+\textbf{Length} &
+\textbf{Segments} &
+\textbf{Reason for Inclusion} \\
+\midrule
+I-40 & Cookeville to North Carolina border & 274 km & 342 & Appalachian mountain crossing with known rockfall and slope instability concerns \\
+I-75 & Jellico Mountain section, Campbell County & 72 km & 90 & Documented slope hazard area with steep clastic sedimentary terrain \\
+\midrule
+\textbf{Total} & East Tennessee & \textbf{346 km} & \textbf{432} & Proof-of-concept corridor network \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% =========================================================
+\section{Data Sources}
+\label{sec:data}
+
+All analysis layers are based on real, publicly available data. No synthetic input data were used for terrain, geology, traffic, or I-40 InSAR processing. Proxy labels were used only for preliminary model training and are explicitly identified as a limitation.
+
+\begin{table}[H]
+\centering
+\caption{Data sources used in the analysis pipeline.}
+\label{tab:datasources}
+\begin{tabularx}{\linewidth}{L{3cm}L{3.2cm}L{2.1cm}Y}
+\toprule
+\textbf{Layer} &
+\textbf{Source} &
+\textbf{Resolution} &
+\textbf{Role in Analysis} \\
+\midrule
+Terrain / DEM & USGS 3DEP & 30 m & Slope, elevation relief, curvature, roughness, and hydrologic proxy features \\
+InSAR displacement & Sentinel-1 via ASF HyP3 & Approximately 80 m & Real satellite displacement and trend signal \\
+InSAR coherence & Sentinel-1 via ASF HyP3 & Approximately 80 m & Quality indicator for satellite displacement reliability \\
+Geology & USGS Tennessee State Geology Map & Polygon & Rock-type classification and geologic susceptibility factor \\
+Traffic exposure & FHWA HPMS 2022 & Segment & AADT and truck percentage for consequence weighting \\
+Labels & Terrain + InSAR composite & Segment & Proxy training label pending TDOT USMP validation \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Sentinel-1 InSAR Data}
+
+InSAR measures ground displacement by comparing phase differences between repeated Synthetic Aperture Radar acquisitions. This project used NASA ASF HyP3 to process 35 Sentinel-1 InSAR pairs covering January 2022 through January 2024. The two-year temporal baseline supports displacement trend estimation rather than relying on a single scene or isolated observation.
+
+\begin{boxednote}[InSAR Processing Summary]
+\begin{itemize}
+  \item \textbf{Platform:} Sentinel-1A, Track 121
+  \item \textbf{Processing service:} ASF HyP3, 20 by 4 looks, INT80 product
+  \item \textbf{Temporal baseline:} 12-day repeat cycle
+  \item \textbf{Spatial baseline:} Less than 150 m for all pairs
+  \item \textbf{Output layers:} Vertical displacement and coherence rasters
+  \item \textbf{Coverage status:} I-40 processed; I-75 InSAR processing pending
+  \item \textbf{Mean coherence:} 0.507, acceptable for forested Appalachian terrain
+\end{itemize}
+\end{boxednote}
+
+\subsection{USGS 3DEP Terrain Data}
+
+USGS 3DEP 30 m Digital Elevation Model data were downloaded for the corridor bounding boxes using a 15 km buffer. Terrain features were computed in a 500 m buffer around each road segment. The analysis used UTM Zone 17N (EPSG:32617) for projected spatial operations.
+
+\subsection{USGS Tennessee Geology}
+
+The USGS Tennessee geology polygon layer was spatially joined to each road segment. Rock-type fields were grouped into risk-relevant categories: carbonate, clastic sedimentary, metamorphic/crystalline, unconsolidated, and other.
+
+\subsection{FHWA HPMS Traffic Exposure}
+
+Traffic exposure was represented using annual average daily traffic and truck share from FHWA HPMS 2022. These variables do not directly indicate slope movement, but they help prioritize locations where slope failure could have higher operational consequences.
+
+% =========================================================
+\section{Methodology}
+\label{sec:methods}
+
+\subsection{Corridor Segmentation}
+
+Each corridor was divided into half-mile segments using linear referencing. This produced 342 I-40 segments and 90 I-75 segments. Segment-level buffers were used to extract terrain, geology, displacement, coherence, and road-exposure variables.
+
+\subsection{Feature Engineering}
+
+\begin{table}[H]
+\centering
+\caption{Primary model features.}
+\label{tab:features}
+\begin{tabularx}{\linewidth}{L{3.6cm}L{4.2cm}Y}
+\toprule
+\textbf{Feature Group} &
+\textbf{Examples} &
+\textbf{Purpose} \\
+\midrule
+Terrain & Mean slope, maximum slope, elevation range, roughness, curvature & Estimate physical susceptibility to slope movement \\
+InSAR & Mean displacement, displacement trend, displacement standard deviation, coherence, number of valid pairs & Detect measured ground movement and signal reliability \\
+Geology & Rock class and geologic susceptibility category & Incorporate lithologic failure potential \\
+Traffic exposure & AADT and truck AADT & Represent operational consequence and inspection priority \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Composite Risk Score}
+
+The composite risk score combines model output, terrain susceptibility, InSAR displacement evidence, road exposure, and geology:
+
+\begin{equation}
+\text{Risk Score} = 0.35P_{ML} + 0.25S_{terrain} + 0.20S_{InSAR} + 0.12S_{road} + 0.08S_{geo}
+\end{equation}
+
+where each component is normalized to the range $[0,1]$. Terrain uses slope, elevation relief, and roughness; InSAR uses displacement magnitude, trend, and variability; road exposure uses AADT and truck traffic; and geology uses rock-class susceptibility.
+
+\begin{table}[H]
+\centering
+\caption{Risk category thresholds and segment counts.}
+\label{tab:categories}
+\begin{tabular}{L{2.8cm}C{2.3cm}C{1.7cm}C{1.7cm}C{1.7cm}C{2.2cm}}
+\toprule
+\textbf{Category} &
+\textbf{Score Range} &
+\textbf{I-40} &
+\textbf{I-75} &
+\textbf{Total} &
+\textbf{Network Share} \\
+\midrule
+Low & 0.00--0.25 & 242 & 53 & 295 & 68.3\% \\
+Moderate & 0.25--0.50 & 34 & 10 & 44 & 10.2\% \\
+High & 0.50--0.75 & 66 & 25 & 91 & 21.1\% \\
+Critical & 0.75--1.00 & 0 & 2 & 2 & 0.5\% \\
+\midrule
+\textbf{Total} & -- & \textbf{342} & \textbf{90} & \textbf{432} & \textbf{100\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Machine Learning Model}
+
+A Random Forest classifier was selected as the primary model because it handles mixed feature types, provides feature importance estimates, and is robust for tabular geospatial risk screening. The model used 300 estimators, maximum depth of 8, balanced class weights, and random state 42.
+
+\begin{table}[H]
+\centering
+\caption{Model performance comparison.}
+\label{tab:models}
+\begin{tabularx}{\linewidth}{Y C{2.7cm}C{2.1cm}Y}
+\toprule
+\textbf{Model} &
+\textbf{CV ROC-AUC} &
+\textbf{Segments} &
+\textbf{Interpretation} \\
+\midrule
+Random Forest, I-40 only & $0.952 \pm 0.055$ & 342 & Strong performance on the corridor with real InSAR coverage \\
+Random Forest, combined & $0.945 \pm 0.050$ & 432 & Main reported supervised model across both corridors \\
+Gradient Boosting & $0.986 \pm 0.006$ & 342 & High single-corridor performance, but still based on proxy labels \\
+Logistic Regression & $0.997 \pm 0.002$ & 342 & Linear baseline; high value reflects label-feature dependency \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{boxednote}[Important Interpretation Note]
+The reported AUC values are preliminary because the current labels are proxy labels derived from the feature space. These values should not be interpreted as final operational accuracy. The model should be recalibrated after TDOT USMP ground-truth inspection points are added. The unsupervised clustering analysis reduces this circularity by identifying risk groups directly from measured features without labels.
+\end{boxednote}
+
+\subsection{Unsupervised Risk Clustering}
+\label{sec:clustering}
+
+K-Means clustering was applied to 12 real feature measurements without using proxy labels. The optimal number of clusters was selected using silhouette scores across $K=2$ to $K=8$. The best solution was $K=3$, with a silhouette score of 0.376. PCA explained 67.2\% of the total variance in the first two components.
+
+\begin{table}[H]
+\centering
+\caption{Unsupervised cluster profiles.}
+\label{tab:clusters}
+\begin{tabularx}{\linewidth}{C{1.4cm}C{2cm}C{1.5cm}C{2cm}C{2.5cm}Y}
+\toprule
+\textbf{Cluster} &
+\textbf{Risk} &
+\textbf{N} &
+\textbf{Slope} &
+\textbf{InSAR} &
+\textbf{Primary Driver} \\
+\midrule
+0 & Moderate & 149 & 5.2$^\circ$ & Real, 32 pairs & Displacement signal \\
+1 & Low & 128 & 4.1$^\circ$ & No coverage & Flat terrain \\
+2 & High & 65 & 13.7$^\circ$ & No coverage & Steep terrain \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% =========================================================
+\section{Results and Key Findings}
+\label{sec:results}
+
+\subsection{Finding 1: Segment 149 Shows Movement Missed by Terrain-Only Screening}
+
+\begin{boxednote}[Core Finding]
+Segment 149 on I-40 shows \textbf{-1.785 mm/month} sustained subsidence over two years of Sentinel-1 InSAR observations despite having only a \textbf{5.2-degree} mean slope. A terrain-only approach would classify this location as Low risk, while the InSAR-integrated approach elevates it to High risk.
+\end{boxednote}
+
+\begin{table}[H]
+\centering
+\caption{Segment 149 profile.}
+\label{tab:seg149}
+\begin{tabularx}{\linewidth}{L{4cm}L{4cm}Y}
+\toprule
+\textbf{Property} &
+\textbf{Value} &
+\textbf{Interpretation} \\
+\midrule
+Location & I-40 east of Knoxville & Central corridor section \\
+Mean slope & 5.2$^\circ$ & Low risk under terrain-only screening \\
+Rock class & Carbonate / limestone & Potential dissolution and subsidence concern \\
+InSAR pairs & 32 of 35 & Strong temporal coverage \\
+Mean displacement & -3.318 mm & Net subsidence signal \\
+Peak displacement & -162.6 mm & Single-pair extreme event \\
+Trend & \textbf{-1.785 mm/month} & Sustained two-year movement signal \\
+Estimated 2-year cumulative displacement & Approximately -43 mm & Meaningful ground movement \\
+Mean coherence & 0.420 & Moderate signal reliability \\
+Terrain-only risk & \textbf{Low} & Would likely be missed \\
+Combined risk & \textbf{High} & Flagged for review \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Finding 2: Two Critical Segments Identified on I-75 Jellico}
+
+Two I-75 segments, IDs 1023 and 1024, are classified as Critical risk with scores of 0.797 and 0.800. Both are located in the Jellico Mountain section of Campbell County and share the following characteristics:
+
+\begin{itemize}
+  \item Clastic sedimentary rock, including sandstone and shale, which represents the highest landslide-susceptibility class in this project.
+  \item Mean slope of approximately 15.5 to 15.6 degrees, among the steepest values in the study network.
+  \item Elevation range of approximately 310 to 431 m within the 500 m buffer.
+  \item AADT of approximately 28,000 to 30,000 vehicles per day.
+\end{itemize}
+
+\subsection{Finding 3: Geology Strongly Separates High-Risk Areas}
+
+\begin{table}[H]
+\centering
+\caption{Risk summary by rock class.}
+\label{tab:geology}
+\begin{tabularx}{\linewidth}{Y C{1.6cm}C{2.2cm}C{2.3cm}Y}
+\toprule
+\textbf{Rock Class} &
+\textbf{N} &
+\textbf{Mean Risk} &
+\textbf{High/Critical} &
+\textbf{Interpretation} \\
+\midrule
+Metamorphic / crystalline & 1 & 0.51 & 1 & Eastern North Carolina border segment \\
+Clastic sedimentary & 186 & 0.31 & 91 & Dominant high-risk lithology in the network \\
+Other & 70 & 0.28 & 2 & Mixed or unclassified units \\
+Carbonate & 175 & 0.22 & 0 & Mostly lower terrain risk, but Segment 149 shows displacement signal \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Clastic sedimentary rock accounts for 91 of the 93 High or Critical segments. This confirms that geology is an important screening layer for slope-risk prioritization in the East Tennessee Appalachian corridor setting.
+
+\subsection{Finding 4: Terrain Roughness Is the Strongest Supervised Predictor}
+
+The Random Forest feature-importance ranking shows that terrain roughness is the strongest model predictor, followed by mean slope, elevation range, maximum slope, AADT, mean displacement, and coherence.
+
+\begin{table}[H]
+\centering
+\caption{Top Random Forest feature importance values.}
+\label{tab:importance}
+\begin{tabular}{L{5.8cm}C{3cm}L{5cm}}
+\toprule
+\textbf{Feature} &
+\textbf{Importance} &
+\textbf{Meaning} \\
+\midrule
+Terrain roughness & 0.335 & Dominant terrain predictor \\
+Mean slope & 0.212 & Primary slope steepness indicator \\
+Elevation range & 0.165 & Local relief and terrain complexity \\
+Maximum slope & 0.115 & Extreme local slope condition \\
+AADT & 0.041 & Exposure and consequence proxy \\
+Mean displacement & 0.041 & Satellite movement signal \\
+Mean coherence & 0.033 & InSAR reliability indicator \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+InSAR features rank below the strongest terrain features in global importance, but they are essential for detecting locations such as Segment 149, where measured movement exists despite low slope.
+
+% =========================================================
+\section{Dashboard and Deliverables}
+\label{sec:dashboard}
+
+A six-tab Streamlit dashboard was developed to support practical review by TDOT engineers. The dashboard summarizes corridor risk, maps segment locations, compares I-40 and I-75, and provides filterable tables for inspection prioritization.
+
+\begin{table}[H]
+\centering
+\caption{Dashboard structure.}
+\label{tab:dashboard}
+\begin{tabularx}{\linewidth}{L{3cm}Y Y}
+\toprule
+\textbf{Dashboard Tab} &
+\textbf{Content} &
+\textbf{Operational Use} \\
+\midrule
+Risk Map & Interactive map of both corridors & Quickly locate high-risk and critical segments \\
+Analysis & Risk profiles and feature importance & Understand why segments are ranked high \\
+Geology and InSAR & Rock type, displacement, and coherence summaries & Connect geologic susceptibility with measured movement \\
+Corridor Compare & I-40 and I-75 side-by-side summaries & Compare corridor-level risk patterns \\
+Segment Table & Filterable table of all 432 segments & Export ranked inspection lists \\
+Risk Clustering & K-Means and PCA visualizations & Review label-free risk groupings and Segment 149 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Generated Output Files}
+
+\begin{table}[H]
+\centering
+\caption{Main project output files.}
+\label{tab:outputs}
+\begin{tabularx}{\linewidth}{L{6.2cm}L{3.1cm}Y}
+\toprule
+\textbf{File} &
+\textbf{Location} &
+\textbf{Description} \\
+\midrule
+\texttt{risk\_segments.geojson} & \texttt{outputs/maps/} & GIS-ready segment risk output for ArcGIS or QGIS \\
+\texttt{tdot\_risk\_map.html} & \texttt{outputs/maps/} & Standalone interactive map \\
+\texttt{top\_risk\_segments.csv} & \texttt{outputs/tables/} & Top inspection-priority segments \\
+\texttt{feature\_importance.csv} & \texttt{outputs/tables/} & Random Forest feature rankings \\
+\texttt{project\_summary.csv} & \texttt{outputs/tables/} & Summary statistics for the full project \\
+\texttt{fig12\_segment149\_deepdive.png} & \texttt{outputs/figures/} & Segment 149 deep-dive figure \\
+\texttt{fig11\_unsupervised\_clustering.png} & \texttt{outputs/figures/} & K-Means clustering figure \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% =========================================================
+\section{Limitations}
+\label{sec:limitations}
+
+The proof of concept is technically complete, but several limitations must be addressed before operational use.
+
+\begin{table}[H]
+\centering
+\caption{Current limitations and planned resolutions.}
+\label{tab:limitations}
+\begin{tabularx}{\linewidth}{L{3.8cm}Y Y}
+\toprule
+\textbf{Limitation} &
+\textbf{Impact} &
+\textbf{Recommended Resolution} \\
+\midrule
+Proxy labels & Model performance cannot yet be interpreted as field-validated accuracy & Obtain TDOT USMP inspection records and retrain/calibrate the model \\
+I-75 InSAR pending & Current I-75 classification relies primarily on terrain, geology, and road exposure & Submit ASF HyP3 jobs for the I-75 bounding box \\
+InSAR coverage gaps & Eastern I-40 segments have incomplete coverage & Process additional Sentinel-1 pairs and tracks \\
+30 m DEM resolution & Fine-scale slope faces may be missed & Incorporate Tennessee high-resolution LiDAR where available \\
+FHWA HPMS traffic approximation & Exposure values may not match TDOT's latest corridor counts & Replace with TDOT traffic count layers when available \\
+Standard k-fold cross-validation & Spatial autocorrelation may inflate performance estimates & Implement spatial block cross-validation \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% =========================================================
+\section{Recommended Next Steps}
+\label{sec:nextsteps}
+
+The following steps would move the project from proof of concept toward a validated TDOT decision-support system:
+
+\begin{enumerate}
+  \item \textbf{Integrate TDOT USMP ground-truth data.} This is the highest-priority next step. It will allow the current proxy-label model to be replaced with a field-validated risk model.
+  \item \textbf{Complete I-75 InSAR processing.} Submit the same ASF HyP3 workflow for the I-75 Jellico bounding box to provide measured displacement evidence for the Critical-risk segments.
+  \item \textbf{Implement spatial block cross-validation.} Use geographically separated training and testing blocks to provide a more honest estimate of operational model performance.
+  \item \textbf{Add high-resolution LiDAR features.} Incorporate sub-meter slope geometry where available to improve fine-scale slope-face detection.
+  \item \textbf{Expand to additional corridors.} Candidate corridors include I-81, US-441, and US-64, where terrain and geologic conditions may create similar slope-management concerns.
+  \item \textbf{Prepare for TDOT deployment.} Package the dashboard, GIS output, and automated processing scripts into a repeatable workflow suitable for engineering review.
+\end{enumerate}
+
+% =========================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+This proof of concept demonstrates that an InSAR-integrated slope movement monitoring system for TDOT is feasible, interpretable, and operationally useful. The workflow converts public remote sensing and geospatial data into corridor-level risk rankings, identifies priority locations, and presents the results in a dashboard designed for engineering decision support.
+
+The most important result is Segment 149 on I-40, where real Sentinel-1 InSAR data show sustained subsidence despite low terrain steepness. This finding directly supports the need for satellite displacement monitoring as a complement to terrain-only inspection screening. The I-75 Jellico results also show that the system can identify steep, geologically susceptible segments that align with known slope-hazard concerns.
+
+The project is ready for the next validation stage. Once TDOT USMP ground-truth inspection data are added, the current proof-of-concept model can be recalibrated into a validated slope-risk prioritization framework suitable for broader corridor deployment.
+
+\end{document}
