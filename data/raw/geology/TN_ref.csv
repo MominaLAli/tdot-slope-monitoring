@@ -1,0 +1,5 @@
+ref_id,reference,onlink
+TN003,USGS Geologic Names Lexicon (GEOLEX),http://ngmdb.usgs.gov/Geolex/
+TN001,"Geology available at Tennesse Spatial Data Server which can be found at http://www.tngis.org/geology.html which links to a USGS Water Resources Division site: http://water.usgs.gov/lookup/getspatial?geo250k Tennessee Spatial Data Server site notes: Thanks goes to Jim Julian for researching this improved geology layer from the Tennessee Division of Geology. **Note** - The Tennessee Division of Geology does not endorse this coverage, stating this version is still incomplete and not fit for distribution.  ",
+TN002,"Hardeman, W.D., and others, 1966, Geologic map of Tennessee: Division of Geology, Tennessee Department of Environment and Conservation, scale 1:250,000 ",
+TN201,Polygon edits made my C.L. Dicken based on paper source (TN002). ,

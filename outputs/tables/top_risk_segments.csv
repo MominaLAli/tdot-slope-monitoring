@@ -1,0 +1,11 @@
+segment_id,corridor,risk_score,risk_category,mean_slope_deg,elev_range_m,mean_disp_mm,mean_coherence,rock_class,AADT_2022
+1024,I-75,0.8,Critical,15.5,387.4,-13.01,0.435,clastic_sedimentary,28031
+1023,I-75,0.797,Critical,15.64,350.3,-12.74,0.386,clastic_sedimentary,30045
+1015,I-75,0.743,High,14.68,305.4,-10.83,0.525,clastic_sedimentary,25558
+25,I-40,0.71,High,13.98,254.7,3.996,0.421,clastic_sedimentary,84167
+1016,I-75,0.71,High,14.43,178.3,-9.73,0.4,clastic_sedimentary,27527
+1018,I-75,0.71,High,12.96,274.3,-9.57,0.499,clastic_sedimentary,29291
+1022,I-75,0.709,High,12.4,258.7,-9.7,0.464,clastic_sedimentary,29380
+1014,I-75,0.704,High,13.62,290.1,-8.63,0.412,clastic_sedimentary,25051
+21,I-40,0.703,High,12.1,211.2,3.862,0.409,clastic_sedimentary,108373
+1004,I-75,0.698,High,11.78,281.8,-9.36,0.492,clastic_sedimentary,27958

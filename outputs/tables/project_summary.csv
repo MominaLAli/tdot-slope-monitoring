@@ -1,0 +1,31 @@
+,value
+Total segments,432
+Corridors,2
+I-40 segments,342
+I-75 segments,90
+Total corridor km,346
+Critical risk segments,2
+High risk segments,91
+Moderate risk segments,44
+Low risk segments,295
+Mean risk score,0.271
+Max risk score,0.8
+InSAR pairs (I-40),35
+InSAR date range,2022-01-10 to 2024-01-24
+InSAR temporal baseline days,730
+Mean displacement mm,-0.011
+Max subsidence mm/month,-1.785
+Most displaced segment,149
+Mean coherence,0.546
+Mean slope deg,6.5
+Max slope deg,34.73
+Clastic sedimentary segs,186
+Carbonate segs,175
+Metamorphic crystalline segs,1
+Mean AADT I-40,62590
+Mean AADT I-75,34851
+ML model,Random Forest (n=300)
+CV ROC-AUC combined,0.945
+CV ROC-AUC I-40 only,0.952
+Data sources,4
+Labels,Terrain+InSAR proxy (USMP pending)
